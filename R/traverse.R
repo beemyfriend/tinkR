@@ -161,3 +161,62 @@ get_secondary_link_count <- function(query, links){
   secondary_link_counts %>%
     filter(!node %in% c(query_connections$source, query_connections$target))
 }
+
+#'same as induced_subgraph() but with the first input being a vertex vector
+#'
+#'@param nodes a vector of nodes or node names
+#'@param graph the igraph to filter
+#'@export
+reverse_induced_subgraph <- function(nodes, graph){
+  induced_subgraph(graph = graph, vids = nodes)
+}
+
+#' same as subgraph.edges() but with the first input being an edge vector
+#'
+#'@param edges a vector of edges
+#'@param graph the graph to filter
+#'@param delete.vertices boolean fo whether or not to delete unconnected vertices
+#'@export
+reverse_subgraph_edges <- function(edges, graph, delete.vertices = T){
+  subgraph.edges(graph = graph, eids = edges, delete.vertices = delete.vertices)
+}
+
+#'same as ego() but with the first input being a vertex vector
+#'
+#'@param nodes vertex of nodes of interest
+#'@param graph to find nodes of interest
+#'@param order retain nodes within n-ordered distance of nodes of interest
+#'@param mode which direction of links to follow
+#'@export
+reverse_ego <- function(nodes, graph, order = 1, mode = 'all' ){
+  ego(graph = graph, order = order, nodes = nodes, mode = mode) 
+}
+
+#'same as degree() but with the first input being vertex vector
+#'
+#'@param v vector of vertices
+#'@param graph an igraph to analyze
+#'@param mode direction of edges to calculate degree
+#'@export
+reverse_degree <- function(v, graph, mode = 'all'){
+  degree(graph = graph, v = v, mode = mode)
+}
+
+#'saves an object to the global environment to be referenced later does not change the input object and the pipe chain can continue
+#'
+#' @param x an object to save
+#' @param name the variable name to save the object o
+#' @export
+save_as <- function(x, name){
+  assign(name, x, envir=globalenv())
+  x
+}
+
+#'changes the object being piped to a different object
+#'
+#'@param x the object to transition from
+#'@param y the object to transition to 
+#'@export
+smooth_transition <- function(x, y){
+  y
+}
