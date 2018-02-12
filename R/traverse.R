@@ -202,6 +202,67 @@ reverse_degree <- function(v, graph, mode = 'all'){
   degree(graph = graph, v = v, mode = mode)
 }
 
+#'same as head_of() but with the first input being an edge vector
+#'
+#'@param es vector of edges
+#'@param graph an igraph to analyze
+#'@export
+reverse_head_of <- function(es, graph){
+  head_of(graph, es)
+}
+
+#'same as tail_of() but with the first input being an edge vector
+#'
+#'@param es vector of edges
+#'@param graph an igraph to analyze
+#'@export
+reverse_tail_of <- function(es, graph){
+  tail_of(graph, es)
+}
+
+#'An imitation of Gremlin's out() and in() functions
+#'
+#'@parem vertice a vector of vertices or a single vertex
+#'@direction "in' or "out" going vertices
+#'@graph igraph that the vertices are found in
+#'@edge_req a string query to filter the edges by. Normally a boolean for "label" or "name"
+#'@export
+move <- function(vertices, direction, graph, edge_req = NULL){
+  tempGraph <- reverse_ego(names(vertices), graph, mode = direction) %>%
+    unlist %>%
+    names() %>%
+    unique %>%
+    reverse_induced_subgraph(graph)
+  
+  if(direction == "in"){
+    tempEdges <- tempGraph %>% 
+      E() %>% 
+      .[V(tempGraph) %>% .[names(.) %in% names(vertices)] %<-% V(tempGraph)] 
+  } else {
+    tempEdges <- tempGraph %>% 
+      E() %>% 
+      .[V(tempGraph) %>% .[names(.) %in% names(vertices)] %->% V(tempGraph)] 
+  }
+  
+  
+  if(!is.null(edge_req)){
+    tempEdges <- tempEdges %>%
+      .[eval(parse(text = edge_req))]
+  }
+  
+  if(direction == "in"){
+    tail_of(tempGraph, tempEdges) %>%
+      names() %>%
+      reverse_induced_subgraph(graph) %>%
+      V()
+  } else {
+    head_of(tempGraph, tempEdges) %>%
+      names() %>%
+      reverse_induced_subgraph(graph) %>%
+      V()
+  }
+}
+
 #'saves an object to the global environment to be referenced later does not change the input object and the pipe chain can continue
 #'
 #' @param x an object to save
